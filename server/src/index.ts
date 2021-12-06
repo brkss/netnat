@@ -23,5 +23,17 @@ const PORT: number = 4000;
     const connection = request.accept("", request.origin);
     _room[userID] = connection;
     console.log(`user joined the room ${userID}`);
+
+    connection.on("message", (message) => {
+      if (message.type == "utf8") {
+        console.log("recieved message : ", message.utf8Data);
+
+        // brodcast message to all connected clients
+        for (let key in _room) {
+          _room[key].sendUTF(message.utf8Data);
+          console.log(`Message sent to ${_room[key]}`);
+        }
+      }
+    });
   });
 })();
