@@ -1,0 +1,19 @@
+React.useEffect(() => {
+    client.onopen = () => {
+      console.log("Connected !");
+    };
+    client.onmessage = (message: any) => {
+      const msg = JSON.parse(message.data);
+      console.log("got reply => ", msg);
+    };
+  }, []);
+
+  const sendMessage = (value: string) => {
+    client.send(
+      JSON.stringify({
+        type: "message",
+        msg: value,
+      })
+    );
+  };
+
