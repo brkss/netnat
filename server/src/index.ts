@@ -1,8 +1,10 @@
+import "dotenv/config";
 import http from "http";
 import { server, connection } from "websocket";
 import { v4 as uuidv4 } from "uuid";
 import { uniqueNamesGenerator, colors, animals } from "unique-names-generator";
 import { IClient } from "./utils/types/Client";
+import { genToken } from "./utils/token/gen";
 
 const PORT: number = 4000;
 
@@ -38,10 +40,26 @@ const PORT: number = 4000;
       })
     );
 
+    // join request
     connection.on("message", (message) => {
       if (message.type == "utf8") {
-        console.log("recieved message : ", message.utf8Data);
-
+        const msg = JSON.parse(message.utf8Data);
+        if (msg.type === "join-request") {
+          const token = genToken(msg.id);
+          _room[msg.id as string].connection.sendUTF(
+            JSON.stringify({
+              type: "join-accept",
+              token: token.token,
+            })
+          );
+        }
+        console.log("join message => ", message.utf8Data);
+      }
+    });
+    /*
+    // send message
+    connection.on("message", (message) => {
+      if (message.type == "utf8") {
         // brodcast message to all connected clients
         for (let key in _room) {
           _room[key].connection.sendUTF(message.utf8Data);
@@ -49,6 +67,7 @@ const PORT: number = 4000;
         }
       }
     });
+    */
   });
 })();
 

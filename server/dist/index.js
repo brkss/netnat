@@ -3,10 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const http_1 = __importDefault(require("http"));
 const websocket_1 = require("websocket");
 const uuid_1 = require("uuid");
 const unique_names_generator_1 = require("unique-names-generator");
+const gen_1 = require("./utils/token/gen");
 const PORT = 4000;
 (async () => {
     const _room = {};
@@ -33,11 +35,15 @@ const PORT = 4000;
         }));
         connection.on("message", (message) => {
             if (message.type == "utf8") {
-                console.log("recieved message : ", message.utf8Data);
-                for (let key in _room) {
-                    _room[key].connection.sendUTF(message.utf8Data);
-                    console.log(`Message sent to ${_room[key].name}`);
+                const msg = JSON.parse(message.utf8Data);
+                if (msg.type === "join-request") {
+                    const token = (0, gen_1.genToken)(msg.id);
+                    _room[msg.id].connection.sendUTF(JSON.stringify({
+                        type: "join-accept",
+                        token: token.token,
+                    }));
                 }
+                console.log("join message => ", message.utf8Data);
             }
         });
     });
