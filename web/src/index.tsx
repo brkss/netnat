@@ -3,11 +3,14 @@ import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 import { Application } from "./Application";
 import { SocketContext, client } from "./utils/socket/socket";
+import { ChakraProvider } from "@chakra-ui/react";
 
 ReactDOM.render(
   <React.StrictMode>
     <SocketContext.Provider value={client}>
-      <Application />
+      <ChakraProvider>
+        <Application />
+      </ChakraProvider>
     </SocketContext.Provider>
   </React.StrictMode>,
   document.getElementById("root")
