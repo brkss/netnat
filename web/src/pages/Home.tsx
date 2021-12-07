@@ -5,7 +5,7 @@ import { Box, Center, Heading } from "@chakra-ui/react";
 import { Button } from "../components";
 import { Avatar } from "@chakra-ui/react";
 
-export const Home: React.FC = () => {
+export const Home: React.FC<any> = ({ history }) => {
   const client = React.useContext(SocketContext);
   const [info, SetInfo] = React.useState<any>({});
 
@@ -17,7 +17,10 @@ export const Home: React.FC = () => {
       const msg = JSON.parse(message.data as string);
       if (msg.type === "information")
         SetInfo(JSON.parse(message.data as string).value as any);
-      if (msg.type === "join-accept") localStorage.setItem("_token", msg.token);
+      if (msg.type === "join-accept") {
+        history.push("feed");
+        localStorage.setItem("_token", msg.token);
+      }
     };
   }, []);
 

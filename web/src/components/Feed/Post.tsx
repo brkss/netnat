@@ -29,7 +29,22 @@ export const Post: React.FC = () => {
       <Box mt={"10px"}>
         <Wrap>
           <WrapItem>
-            <Reaction />
+            <Reaction icon={"❤️"} />
+          </WrapItem>
+          <WrapItem>
+            <Reaction icon={"🤨"} />
+          </WrapItem>
+          <WrapItem>
+            <Reaction icon={"😮"} />
+          </WrapItem>
+          <WrapItem>
+            <Reaction icon={"🤥"} />
+          </WrapItem>
+          <WrapItem>
+            <Reaction icon={"👍"} />
+          </WrapItem>
+          <WrapItem>
+            <Reaction icon={"👎"} />
           </WrapItem>
         </Wrap>
       </Box>

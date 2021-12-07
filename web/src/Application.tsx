@@ -7,11 +7,13 @@ import {
 } from "react-router-dom";
 import { routes } from "./utils/config/routes";
 import { Button } from "antd";
+import { Navigation } from "./components";
 
 export const Application: React.FC = () => {
   return (
     <>
       <BrowserRouter>
+        <Navigation />
         <Switch>
           {routes.map((route, key) => (
             <Route
