@@ -14,13 +14,20 @@ export const Home: React.FC = () => {
       console.log("Connected from Home !");
     };
     client.onmessage = (message: IMessageEvent) => {
-      console.log(
-        "message after connection ",
-        JSON.parse(message.data as string)
-      );
-      SetInfo(JSON.parse(message.data as string).value as any);
+      const msg = JSON.parse(message.data as string);
+      if (msg.type === "information")
+        SetInfo(JSON.parse(message.data as string).value as any);
+      if (msg.type === "join-accept") localStorage.setItem("_token", msg.token);
     };
   }, []);
+
+  const requestJoin = () => {
+    const msg = JSON.stringify({
+      type: "join-request",
+      id: info.id,
+    });
+    client.send(msg);
+  };
 
   return (
     <Box height={"100vh"} bg={"#1e191a"}>
@@ -34,7 +41,7 @@ export const Home: React.FC = () => {
             You're known as{" "}
             <span style={{ color: "#f56371" }}>{info.uname}</span>
           </Heading>
-          <Button />
+          <Button onClick={() => requestJoin()} label={"Join"} />
         </Box>
       </Center>
     </Box>

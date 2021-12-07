@@ -2,10 +2,15 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Box } from "@chakra-ui/react";
 
-export const Button: React.FC = () => {
+interface Props {
+  onClick: () => void;
+  label: string;
+}
+
+export const Button: React.FC<Props> = ({ onClick, label }) => {
   return (
     <Box>
-      <Btn>Join</Btn>
+      <Btn onClick={onClick}>{label}</Btn>
     </Box>
   );
 };
