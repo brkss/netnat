@@ -1,5 +1,7 @@
 import React from "react";
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Heading, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { Button } from "../general";
+import { Reaction } from "./Reaction";
 
 export const Post: React.FC = () => {
   return (
@@ -13,11 +15,24 @@ export const Post: React.FC = () => {
       <Heading fontSize={"14px"} color={"white"}>
         red-owl
       </Heading>
-      <Text>
+      <Text
+        lineHeight={"16px"}
+        fontSize={"14px"}
+        fontWeight={"bold"}
+        color={"#ffffff94"}
+        mt={"8px"}
+      >
         This is a random content please do not read ! stop reading this is not a
         warning wait you still reading please stop, hope you didnt just waste
         your time !
       </Text>
+      <Box mt={"10px"}>
+        <Wrap>
+          <WrapItem>
+            <Reaction />
+          </WrapItem>
+        </Wrap>
+      </Box>
     </Box>
   );
 };
