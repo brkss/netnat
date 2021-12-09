@@ -19,7 +19,7 @@ interface Props {
 export const CreateCanvas: React.FC<Props> = ({ onClose, isOpen }) => {
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer size={"lg"} isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />

@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Grid, GridItem } from "@chakra-ui/react";
-import { Block } from "../components";
+import { Box, Grid, GridItem, useDisclosure } from "@chakra-ui/react";
+import { Block, CreateCanvas } from "../components";
 
 const colors = [
   "#F3F1F5",
@@ -14,7 +14,9 @@ const colors = [
 ];
 
 export const Canvas: React.FC = () => {
+  const _createCanvasDisclosure = useDisclosure();
   const o = [];
+
   for (let i = 0; i < 100; i++) {
     o.push(i);
   }
@@ -27,10 +29,16 @@ export const Canvas: React.FC = () => {
             h={"100px"}
             bg={colors[Math.floor(Math.random() * colors.length)]}
           >
-            {key == 2 ? <Block /> : null}
+            {key == 2 ? (
+              <Block clicked={() => _createCanvasDisclosure.onOpen()} />
+            ) : null}
           </GridItem>
         ))}
       </Grid>
+      <CreateCanvas
+        isOpen={_createCanvasDisclosure.isOpen}
+        onClose={_createCanvasDisclosure.onClose}
+      />
     </Box>
   );
 };
