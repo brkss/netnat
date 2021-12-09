@@ -9,7 +9,9 @@ import {
   DrawerCloseButton,
   Button,
   Input,
+  Badge,
 } from "@chakra-ui/react";
+import { InputGhost } from "..";
 
 interface Props {
   isOpen: boolean;
@@ -23,10 +25,13 @@ export const CreateCanvas: React.FC<Props> = ({ onClose, isOpen }) => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Create your account</DrawerHeader>
+          <DrawerHeader>Create your block</DrawerHeader>
 
           <DrawerBody>
-            <Input placeholder="Type here..." />
+            <InputGhost placeholder={"Block Title"} />
+            <Badge colorScheme="green" rounded={"50px"} p={"1px 7px"}>
+              Text Mode
+            </Badge>
           </DrawerBody>
 
           <DrawerFooter>
