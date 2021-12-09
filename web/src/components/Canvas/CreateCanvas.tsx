@@ -11,7 +11,7 @@ import {
   Input,
   Badge,
 } from "@chakra-ui/react";
-import { InputGhost } from "..";
+import { InputGhost, TextAreaGhost } from "..";
 
 interface Props {
   isOpen: boolean;
@@ -32,13 +32,11 @@ export const CreateCanvas: React.FC<Props> = ({ onClose, isOpen }) => {
             <Badge colorScheme="green" rounded={"50px"} p={"1px 7px"}>
               Text Mode
             </Badge>
+            <TextAreaGhost ph={"Write somethig here ! "} />
           </DrawerBody>
 
           <DrawerFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue">Save</Button>
+            <Button variant="outline">Save</Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
