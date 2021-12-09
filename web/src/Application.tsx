@@ -13,7 +13,7 @@ export const Application: React.FC = () => {
   return (
     <>
       <BrowserRouter>
-        <Navigation />
+        {/*<Navigation />*/}
         <Switch>
           {routes.map((route, key) => (
             <Route

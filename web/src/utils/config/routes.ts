@@ -1,5 +1,5 @@
 import { IRoute } from "../types/Route";
-import { Home, Feed } from "../../pages";
+import { Home, Feed, Canvas } from "../../pages";
 
 export const routes: IRoute[] = [
   {
@@ -13,5 +13,11 @@ export const routes: IRoute[] = [
     path: "/feed",
     exact: true,
     component: Feed,
+  },
+  {
+    name: "Canvas",
+    path: "/canvas",
+    component: Canvas,
+    exact: true,
   },
 ];
