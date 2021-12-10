@@ -4,6 +4,7 @@ import reportWebVitals from "./reportWebVitals";
 import { Application } from "./Application";
 import { SocketContext, client } from "./utils/socket/socket";
 import { ChakraProvider } from "@chakra-ui/react";
+import "./assets/main.css";
 
 ReactDOM.render(
   <React.StrictMode>

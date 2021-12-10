@@ -1,0 +1,15 @@
+button.btn-google {
+    box-shadow: none !important;
+    background: #f3f3f3 !important;
+    border-radius: 6px !important;
+}
+
+button.btn-google > div {
+  background: transparent !important;
+  margin: 0;
+}
+button.btn-google > span {
+    font-weight: bold !important;
+    font-style: normal !important;
+    font-family: system-ui;
+}
