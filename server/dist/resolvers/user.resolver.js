@@ -11,11 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const response_1 = require("../utils/response");
 const inputs_1 = require("../utils/inputs");
+const axios_1 = __importDefault(require("axios"));
 let UserResolver = class UserResolver {
     ping() {
         return "pong !";
@@ -27,7 +31,22 @@ let UserResolver = class UserResolver {
                 message: "Invalid Data !",
             };
         try {
-            const verf = fetch();
+            const verf = await axios_1.default.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${data.token}`);
+            if (verf.data.exp < Math.floor(new Date().getTime() / 1000))
+                return {
+                    status: false,
+                    message: "Bad Token ! ",
+                };
+            if (verf.data.email != data.email || verf.data.sub != data.id)
+                return {
+                    status: false,
+                    message: "Invalid Data !",
+                };
+            console.log("verfication -> ", verf);
+            return {
+                status: true,
+                message: "Very good",
+            };
         }
         catch (e) {
             console.log("Something went wrong [AUTH] : ", e);
@@ -36,9 +55,6 @@ let UserResolver = class UserResolver {
                 message: "Something went wrong ! ",
             };
         }
-        return {
-            status: false,
-        };
     }
 };
 __decorate([
