@@ -1,88 +1,50 @@
 import "dotenv/config";
-import http from "http";
-import { server, connection } from "websocket";
-import { v4 as uuidv4 } from "uuid";
-import { uniqueNamesGenerator, colors, animals } from "unique-names-generator";
-import { IClient } from "./utils/types/Client";
-import { genToken } from "./utils/token/gen";
-
-const PORT: number = 4000;
+import "reflect-metadata";
+import express from "express";
+import { createConnection } from "typeorm";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import { UserResolver } from "./resolvers";
 
 (async () => {
-  const _room: any = {};
-  console.log("uuid => ", uuidv4());
-  const serv = http.createServer();
-  serv.listen(PORT);
-  console.log(`🚀 server runing at http://localhost:${PORT} !`);
+  await createConnection();
+  const app = express();
 
-  const ws = new server({
-    httpServer: serv,
+  app.get("/", (_, res) => {
+    res.send("Hello !");
   });
 
-  ws.on("request", (request) => {
-    const userID = uuidv4();
-    console.log(`[${new Date()}] recieved new reauest from ${request.origin}`);
-
-    // accept connection !
-    const connection = request.accept("", request.origin);
-    const client = createClientObject(connection);
-    _room[client.uuid] = client;
-    console.log(`user joined the room ${userID}`);
-
-    // send back user informations
-    _room[client.uuid].connection.sendUTF(
-      JSON.stringify({
-        type: "information",
-        value: {
-          uname: client.name,
-          id: client.uuid,
-        },
-      })
-    );
-
-    // join request
-    connection.on("message", (message) => {
-      if (message.type == "utf8") {
-        const msg = JSON.parse(message.utf8Data);
-        if (msg.type === "join-request") {
-          const token = genToken(msg.id);
-          _room[msg.id as string].connection.sendUTF(
-            JSON.stringify({
-              type: "join-accept",
-              token: token.token,
-            })
-          );
-        }
-        console.log("join message => ", message.utf8Data);
-      }
-    });
-    /*
-    // send message
-    connection.on("message", (message) => {
-      if (message.type == "utf8") {
-        // brodcast message to all connected clients
-        for (let key in _room) {
-          _room[key].connection.sendUTF(message.utf8Data);
-          console.log(`Message sent to ${_room[key].name}`);
-        }
-      }
-    });
-    */
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [UserResolver],
+      validate: false,
+    }),
   });
+
+  apolloServer.applyMiddleware({ app });
+
+  app.listen(process.env.PORT || 4000, () => {
+    console.log("🚀 Server runing at http://localhost:4000");
+  });
+  //console.log("Hello World ! 🚀");
 })();
 
-const createClientObject = (cn: connection): IClient => {
-  const ID = uuidv4();
-  const cname = uniqueNamesGenerator({
-    dictionaries: [colors, animals],
-    separator: "-",
-  });
+/*
+createConnection().then(async connection => {
 
-  // create client object
-  const client: IClient = {
-    uuid: ID,
-    name: cname,
-    connection: cn,
-  };
-  return client;
-};
+    console.log("Inserting a new user into the database...");
+    const user = new User();
+    user.firstName = "Timber";
+    user.lastName = "Saw";
+    user.age = 25;
+    await connection.manager.save(user);
+    console.log("Saved a new user with id: " + user.id);
+
+    console.log("Loading users from the database...");
+    const users = await connection.manager.find(User);
+    console.log("Loaded users: ", users);
+
+    console.log("Here you can setup and run express/koa/any other framework.");
+
+}).catch(error => console.log(error));
+*/

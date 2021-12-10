@@ -4,61 +4,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
-const http_1 = __importDefault(require("http"));
-const websocket_1 = require("websocket");
-const uuid_1 = require("uuid");
-const unique_names_generator_1 = require("unique-names-generator");
-const gen_1 = require("./utils/token/gen");
-const PORT = 4000;
+require("reflect-metadata");
+const express_1 = __importDefault(require("express"));
+const typeorm_1 = require("typeorm");
+const apollo_server_express_1 = require("apollo-server-express");
+const type_graphql_1 = require("type-graphql");
+const resolvers_1 = require("./resolvers");
 (async () => {
-    const _room = {};
-    console.log("uuid => ", (0, uuid_1.v4)());
-    const serv = http_1.default.createServer();
-    serv.listen(PORT);
-    console.log(`🚀 server runing at http://localhost:${PORT} !`);
-    const ws = new websocket_1.server({
-        httpServer: serv,
+    await (0, typeorm_1.createConnection)();
+    const app = (0, express_1.default)();
+    app.get("/", (_, res) => {
+        res.send("Hello !");
     });
-    ws.on("request", (request) => {
-        const userID = (0, uuid_1.v4)();
-        console.log(`[${new Date()}] recieved new reauest from ${request.origin}`);
-        const connection = request.accept("", request.origin);
-        const client = createClientObject(connection);
-        _room[client.uuid] = client;
-        console.log(`user joined the room ${userID}`);
-        _room[client.uuid].connection.sendUTF(JSON.stringify({
-            type: "information",
-            value: {
-                uname: client.name,
-                id: client.uuid,
-            },
-        }));
-        connection.on("message", (message) => {
-            if (message.type == "utf8") {
-                const msg = JSON.parse(message.utf8Data);
-                if (msg.type === "join-request") {
-                    const token = (0, gen_1.genToken)(msg.id);
-                    _room[msg.id].connection.sendUTF(JSON.stringify({
-                        type: "join-accept",
-                        token: token.token,
-                    }));
-                }
-                console.log("join message => ", message.utf8Data);
-            }
-        });
+    const apolloServer = new apollo_server_express_1.ApolloServer({
+        schema: await (0, type_graphql_1.buildSchema)({
+            resolvers: [resolvers_1.UserResolver],
+            validate: false,
+        }),
+    });
+    apolloServer.applyMiddleware({ app });
+    app.listen(process.env.PORT || 4000, () => {
+        console.log("🚀 Server runing at http://localhost:4000");
     });
 })();
-const createClientObject = (cn) => {
-    const ID = (0, uuid_1.v4)();
-    const cname = (0, unique_names_generator_1.uniqueNamesGenerator)({
-        dictionaries: [unique_names_generator_1.colors, unique_names_generator_1.animals],
-        separator: "-",
-    });
-    const client = {
-        uuid: ID,
-        name: cname,
-        connection: cn,
-    };
-    return client;
-};
 //# sourceMappingURL=index.js.map
