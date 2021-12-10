@@ -8,12 +8,37 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
+const response_1 = require("../utils/response");
+const inputs_1 = require("../utils/inputs");
 let UserResolver = class UserResolver {
     ping() {
         return "pong !";
+    }
+    async auth(data) {
+        if (!data.id || !data.name || !data.email || !data.token)
+            return {
+                status: false,
+                message: "Invalid Data !",
+            };
+        try {
+            const verf = fetch();
+        }
+        catch (e) {
+            console.log("Something went wrong [AUTH] : ", e);
+            return {
+                status: false,
+                message: "Something went wrong ! ",
+            };
+        }
+        return {
+            status: false,
+        };
     }
 };
 __decorate([
@@ -22,6 +47,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "ping", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => response_1.AuthResponse),
+    __param(0, (0, type_graphql_1.Arg)("data")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [inputs_1.AuthInput]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "auth", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);
