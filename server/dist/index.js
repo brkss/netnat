@@ -11,6 +11,7 @@ const apollo_server_express_1 = require("apollo-server-express");
 const type_graphql_1 = require("type-graphql");
 const resolvers_1 = require("./resolvers");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const token_1 = require("./utils/token");
 (async () => {
     await (0, typeorm_1.createConnection)();
     const app = (0, express_1.default)();
@@ -18,8 +19,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
         res.send("Hello !");
     });
     app.use((0, cookie_parser_1.default)());
-    app.post("/refresh_token", (req, _) => {
-    });
+    app.post("/refresh_token", async (req, res) => await (0, token_1.refreshToken)(req, res));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
             resolvers: [resolvers_1.UserResolver],
