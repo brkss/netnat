@@ -41,11 +41,12 @@ const inputs_1 = require("../utils/inputs");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt = __importStar(require("bcrypt"));
 const User_1 = require("../entity/User");
+const token_1 = require("../utils/token");
 let UserResolver = class UserResolver {
     ping() {
         return "pong !";
     }
-    async auth(data) {
+    async auth(data, ctx) {
         if (!data.id || !data.name || !data.email || !data.token)
             return {
                 status: false,
@@ -53,7 +54,6 @@ let UserResolver = class UserResolver {
             };
         try {
             const verf = await axios_1.default.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${data.token}`);
-            console.log("axios data => ", verf.data);
             if (verf.data.exp < Math.floor(new Date().getTime() / 1000))
                 return {
                     status: false,
@@ -65,29 +65,32 @@ let UserResolver = class UserResolver {
                     message: "Invalid Data !",
                 };
             if ((await User_1.User.find({ where: { email: data.email } })).length > 0) {
-                return await this.login(data.email, data.id);
+                return await this.login(data.email, data.id, ctx.res);
             }
             else {
-                return await this.createAccount(data);
+                return await this.createAccount(data, ctx.res);
             }
         }
         catch (e) {
+            console.log("Something went wrong [AUTH] : ", e);
             return {
                 status: false,
                 message: "Something went wrong ! ",
             };
         }
     }
-    async createAccount(data) {
+    async createAccount(data, res) {
         try {
             const user = new User_1.User();
             user.email = data.email;
             user.name = data.name;
             user.auid = await bcrypt.hash(data.id, 5);
             await user.save();
+            (0, token_1.sendRefreshToken)(res, (0, token_1.generateRefreshToken)(user.id));
             return {
                 status: true,
                 message: "Account created successfuly",
+                token: (0, token_1.generateAccessToken)(user.id),
             };
         }
         catch (e) {
@@ -98,7 +101,7 @@ let UserResolver = class UserResolver {
             };
         }
     }
-    async login(email, aid) {
+    async login(email, aid, res) {
         const user = await User_1.User.findOne({ where: { email: email } });
         if (!user) {
             return {
@@ -112,9 +115,11 @@ let UserResolver = class UserResolver {
                 status: false,
                 message: "Invalid Credentials",
             };
+        (0, token_1.sendRefreshToken)(res, (0, token_1.generateRefreshToken)(user.id));
         return {
             status: true,
             message: "Logged successfuly",
+            token: (0, token_1.generateAccessToken)(user.id),
         };
     }
 };
@@ -127,8 +132,9 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Mutation)(() => response_1.AuthResponse),
     __param(0, (0, type_graphql_1.Arg)("data")),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [inputs_1.AuthInput]),
+    __metadata("design:paramtypes", [inputs_1.AuthInput, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "auth", null);
 UserResolver = __decorate([

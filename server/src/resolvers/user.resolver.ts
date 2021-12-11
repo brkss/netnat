@@ -1,9 +1,16 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { AuthResponse } from "../utils/response";
 import { AuthInput } from "../utils/inputs";
 import axios from "axios";
 import * as bcrypt from "bcrypt";
 import { User } from "../entity/User";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  sendRefreshToken,
+} from "../utils/token";
+import { MyContext } from "../utils/types/Context";
+import { Response } from "express";
 
 @Resolver()
 export class UserResolver {
@@ -13,7 +20,10 @@ export class UserResolver {
   }
 
   @Mutation(() => AuthResponse)
-  async auth(@Arg("data") data: AuthInput): Promise<AuthResponse> {
+  async auth(
+    @Arg("data") data: AuthInput,
+    @Ctx() ctx: MyContext
+  ): Promise<AuthResponse> {
     if (!data.id || !data.name || !data.email || !data.token)
       return {
         status: false,
@@ -24,7 +34,7 @@ export class UserResolver {
       const verf = await axios.get(
         `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${data.token}`
       );
-      console.log("axios data => ", verf.data);
+      //console.log("axios data => ", verf.data);
       // verify if token valid !
       if (verf.data.exp < Math.floor(new Date().getTime() / 1000))
         return {
@@ -40,13 +50,13 @@ export class UserResolver {
       // check if user already exist
       if ((await User.find({ where: { email: data.email } })).length > 0) {
         // login
-        return await this.login(data.email, data.id);
+        return await this.login(data.email, data.id, ctx.res);
       } else {
         // create account !
-        return await this.createAccount(data);
+        return await this.createAccount(data, ctx.res);
       }
     } catch (e) {
-      //console.log("Something went wrong [AUTH] : ", e);
+      console.log("Something went wrong [AUTH] : ", e);
       return {
         status: false,
         message: "Something went wrong ! ",
@@ -55,16 +65,21 @@ export class UserResolver {
   }
 
   // create account
-  private async createAccount(data: AuthInput): Promise<AuthResponse> {
+  private async createAccount(
+    data: AuthInput,
+    res: Response
+  ): Promise<AuthResponse> {
     try {
       const user = new User();
       user.email = data.email;
       user.name = data.name;
       user.auid = await bcrypt.hash(data.id, 5);
       await user.save();
+      sendRefreshToken(res, generateRefreshToken(user.id));
       return {
         status: true,
         message: "Account created successfuly",
+        token: generateAccessToken(user.id),
       };
     } catch (e) {
       console.log("something went wrong creating user account ! e : ", e);
@@ -76,7 +91,11 @@ export class UserResolver {
   }
 
   // login
-  private async login(email: string, aid: string): Promise<AuthResponse> {
+  private async login(
+    email: string,
+    aid: string,
+    res: Response
+  ): Promise<AuthResponse> {
     const user = await User.findOne({ where: { email: email } });
     if (!user) {
       return {
@@ -90,9 +109,11 @@ export class UserResolver {
         status: false,
         message: "Invalid Credentials",
       };
+    sendRefreshToken(res, generateRefreshToken(user.id));
     return {
       status: true,
       message: "Logged successfuly",
+      token: generateAccessToken(user.id),
     };
   }
 }
