@@ -1,0 +1,9 @@
+
+mutation Auth($name: String!, $email: String!, $id: String!, $token: String!){
+  
+    auth(data: { name: $name, email: $email, id: $id, token: $token }){
+      status
+      message
+      token
+    }
+}
