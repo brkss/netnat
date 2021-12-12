@@ -7,16 +7,19 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers";
 import cookieParser from "cookie-parser";
 import { refreshToken } from "./utils/token";
+import cors from "cors";
 
 (async () => {
   await createConnection();
   const app = express();
 
-  app.get("/", (_, res) => {
-    res.send("Hello !");
-  });
+  app.use(
+    cors({
+      credentials: true,
+      origin: "http://localhost:3000",
+    })
+  );
   app.use(cookieParser());
-  app.post("/refresh_token", async (req, res) => await refreshToken(req, res));
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -27,6 +30,11 @@ import { refreshToken } from "./utils/token";
   });
 
   apolloServer.applyMiddleware({ app });
+
+  app.get("/", (_, res) => {
+    res.send("Hello !");
+  });
+  app.post("/refresh_token", async (req, res) => await refreshToken(req, res));
 
   app.listen(process.env.PORT || 4000, () => {
     console.log("🚀 Server runing at http://localhost:4000");
